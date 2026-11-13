@@ -148,6 +148,36 @@ section{padding:100px 5%;}
 .form-success h3{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:12px;}
 .form-success p{font-size:15px;color:var(--muted);}
 .success-icon{font-size:48px;margin-bottom:16px;}
+/* --- multi-step quote flow (3 questions) --- */
+.qf-rail{height:3px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.qf-rail-fill{height:100%;width:0;background:var(--blue);border-radius:3px;transition:width .3s ease;}
+.qf-meta{display:flex;justify-content:space-between;gap:12px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:26px;}
+.qf-step{display:none;}
+.qf-step.on{display:block;animation:qfIn .28s ease both;}
+@keyframes qfIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.qf-q{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--navy);line-height:1.25;letter-spacing:-.01em;margin-bottom:8px;}
+.qf-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:22px;}
+.qf-choices{display:grid;grid-template-columns:1fr;gap:10px;}
+.qf-choices.two{grid-template-columns:1fr 1fr;}
+.qf-choice{display:flex;align-items:center;gap:12px;text-align:left;background:white;border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--navy);transition:border .18s,box-shadow .18s,transform .18s;min-width:0;}
+.qf-choice:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(26,79,216,.1);transform:translateY(-1px);}
+.qf-choice[aria-pressed="true"]{border-color:var(--blue);background:rgba(26,79,216,.05);}
+.qf-ic{font-size:18px;flex:none;line-height:1;}
+.qf-lbl{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.qf-lbl small{font-size:12px;font-weight:400;color:var(--muted);}
+.qf-back{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;padding:12px 0 0;}
+.qf-back:hover{color:var(--blue);}
+.qf-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;}
+.qf-opt{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-left:6px;}
+.qf-est{background:var(--light);border:1px solid var(--border);border-radius:14px;padding:24px;margin:24px 0 0;text-align:left;}
+.qf-est-cap{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.qf-est-num{font-family:'Sora',sans-serif;font-size:clamp(28px,5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-.02em;line-height:1.1;}
+.qf-est-per{font-size:13px;color:var(--muted);margin-top:4px;}
+.qf-brk{border-top:1px solid var(--border);margin-top:18px;padding-top:14px;display:flex;flex-direction:column;gap:9px;}
+.qf-brow{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:var(--muted);text-align:left;}
+.qf-brow span:last-child{color:var(--navy);font-weight:600;white-space:nowrap;}
+.qf-fine{font-size:12px;color:var(--muted);line-height:1.6;margin-top:16px;text-align:left;}
+@media(max-width:600px){.qf-choices.two{grid-template-columns:1fr;}}
 footer{background:var(--navy);padding:64px 5% 32px;}
 .footer-inner{max-width:1200px;margin:0 auto;}
 .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
@@ -414,29 +444,65 @@ footer{background:var(--navy);padding:64px 5% 32px;}
         <form class="quote-form" id="quote-form" name="quote-request" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="submitForm(event)">
           <input type="hidden" name="form-name" value="quote-request">
           <p style="display:none"><input name="bot-field"></p>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">First Name</label><input type="text" name="first-name" class="form-input" placeholder="Jake" required></div>
-            <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="last-name" class="form-input" placeholder="Reeves"></div>
-            <div class="form-group"><label class="form-label">Business Email</label><input type="email" name="business-email" class="form-input" placeholder="jake@yourbrand.com" required></div>
-            <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" name="phone" class="form-input" placeholder="(512) 555-0123" required></div>
-            <div class="form-group"><label class="form-label">Company Name</label><input type="text" name="company-name" class="form-input" placeholder="Your Brand"></div>
-            <div class="form-group">
-              <label class="form-label">Monthly Orders</label>
-              <select name="monthly-orders" class="form-select"><option value="">Select range...</option><option>0 – 500</option><option>500 – 2,000</option><option>2,000 – 10,000</option><option>10,000+</option></select>
+
+          <div class="qf-rail"><div class="qf-rail-fill" id="qf-rail"></div></div>
+          <div class="qf-meta"><span id="qf-stepno">Question 1 of 3</span><span id="qf-time">About 20 seconds</span></div>
+
+          <!-- Hidden carriers: Netlify reads these field names, same as before -->
+          <input type="hidden" name="what-you-sell" id="qf-sell">
+          <input type="hidden" name="monthly-orders" id="qf-vol">
+          <input type="hidden" name="estimate-shown" id="qf-shown">
+          <input type="hidden" name="last-name" value="">
+          <input type="hidden" name="company-name" value="">
+          <input type="hidden" name="fulfillment-type" value="">
+
+          <!-- 1 -->
+          <div class="qf-step on" id="qf-1">
+            <h3 class="qf-q">What do you sell?</h3>
+            <p class="qf-sub">This sets your handling profile — how it picks, how fragile it is, whether it needs cold chain.</p>
+            <div class="qf-choices two">
+              <button type="button" class="qf-choice" data-cat="supplements" data-sell="Supplements &amp; peptides"><span class="qf-ic">&#129514;</span><span class="qf-lbl">Supplements<small>Vials, capsules, powders</small></span></button>
+              <button type="button" class="qf-choice" data-cat="beauty" data-sell="Beauty &amp; skincare"><span class="qf-ic">&#129524;</span><span class="qf-lbl">Beauty<small>Serums, creams, kits</small></span></button>
+              <button type="button" class="qf-choice" data-cat="food" data-sell="Food &amp; beverage"><span class="qf-ic">&#129387;</span><span class="qf-lbl">Food &amp; bev<small>Shelf-stable or chilled</small></span></button>
+              <button type="button" class="qf-choice" data-cat="apparel" data-sell="Apparel &amp; accessories"><span class="qf-ic">&#128085;</span><span class="qf-lbl">Apparel<small>Poly-bagged or boxed</small></span></button>
+              <button type="button" class="qf-choice" data-cat="pet" data-sell="Pet products"><span class="qf-ic">&#128062;</span><span class="qf-lbl">Pet<small>Treats, supplements, gear</small></span></button>
+              <button type="button" class="qf-choice" data-cat="other" data-sell="Something else"><span class="qf-ic">&#128230;</span><span class="qf-lbl">Something else<small>We handle most categories</small></span></button>
             </div>
-            <div class="form-group">
-              <label class="form-label">Fulfillment Type</label>
-              <select name="fulfillment-type" class="form-select"><option value="">Select type...</option><option>DTC Fulfillment</option><option>B2B / Wholesale</option><option>Subscription Boxes</option><option>All of the Above</option></select>
-            </div>
-            <div class="form-group full"><label class="form-label">What do you sell?</label><input type="text" name="what-you-sell" class="form-input" placeholder="Health supplements, apparel, pet products..."></div>
+            <p class="qf-hint">Tap an answer to continue.</p>
           </div>
-          <button type="submit" class="form-submit" id="submit-btn">Get My Free Quote →</button>
-          <p class="form-note">No spam. No commitment. Just a custom quote within 24 hours.</p>
+
+          <!-- 2 -->
+          <div class="qf-step" id="qf-2">
+            <h3 class="qf-q">How many orders a month?</h3>
+            <p class="qf-sub">Your best estimate is fine. This is the single biggest driver of your rate.</p>
+            <div class="qf-choices">
+              <button type="button" class="qf-choice" data-vol="0 &#8211; 500"><span class="qf-ic">&#9675;</span><span class="qf-lbl">Under 500<small>Starting out or seasonal</small></span></button>
+              <button type="button" class="qf-choice" data-vol="500 &#8211; 2,000"><span class="qf-ic">&#9684;</span><span class="qf-lbl">500 &#8211; 2,000<small>Growing brand</small></span></button>
+              <button type="button" class="qf-choice" data-vol="2,000 &#8211; 10,000"><span class="qf-ic">&#9685;</span><span class="qf-lbl">2,000 &#8211; 10,000<small>Established volume</small></span></button>
+              <button type="button" class="qf-choice" data-vol="10,000+"><span class="qf-ic">&#9679;</span><span class="qf-lbl">10,000+<small>High volume &#8212; custom pricing</small></span></button>
+            </div>
+            <button type="button" class="qf-back" onclick="qfGo(1)">&#8592; Back</button>
+          </div>
+
+          <!-- 3 -->
+          <div class="qf-step" id="qf-3">
+            <h3 class="qf-q">Where do we send it?</h3>
+            <p class="qf-sub">Last screen. Your estimate shows up the second you hit the button.</p>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="qf-fn">First Name</label><input type="text" id="qf-fn" name="first-name" class="form-input" placeholder="Jake" required></div>
+              <div class="form-group"><label class="form-label" for="qf-ph">Phone <span class="qf-opt">optional</span></label><input type="tel" id="qf-ph" name="phone" class="form-input" placeholder="(512) 555-0123"></div>
+              <div class="form-group full"><label class="form-label" for="qf-em">Business Email</label><input type="email" id="qf-em" name="business-email" class="form-input" placeholder="jake@yourbrand.com" required></div>
+            </div>
+            <button type="submit" class="form-submit" id="submit-btn">Get My Estimate &#8594;</button>
+            <button type="button" class="qf-back" onclick="qfGo(2)">&#8592; Back</button>
+            <p class="form-note">No spam. No commitment. A firm quote follows within 24 hours.</p>
+          </div>
         </form>
         <div class="form-success" id="form-success">
-          <div class="success-icon">✅</div>
-          <h3>We're On It!</h3>
-          <p>Our team will review your details and send a custom fulfillment quote within 24 hours. Check your email soon!</p>
+          <div class="success-icon">&#9989;</div>
+          <h3 id="qf-success-h">We're On It!</h3>
+          <p id="qf-success-p">Our team will review your details and send a custom fulfillment quote within 24 hours. Check your email soon!</p>
+          <div id="qf-est-mount"></div>
         </div>
       </div>
     </div>
@@ -494,6 +560,87 @@ document.querySelectorAll('.reveal').forEach(el => {
   observer.observe(el);
 });
 
+/* --- Quote flow: 3 questions, ballpark on submit -------------------------
+   RATES ARE SEED VALUES derived from existing Lakeside client rate cards,
+   not from a published rate sheet. Confirm before this goes live. */
+const QF_RATES = {
+  pickPack: {
+    supplements: [3.00, 3.75],
+    beauty:      [2.25, 3.00],
+    food:        [2.50, 3.25],
+    apparel:     [1.50, 2.25],
+    pet:         [2.00, 2.75],
+    other:       [2.00, 3.00]
+  },
+  addlUnit:         [0.25, 0.50],
+  avgUnitsPerOrder:  2.2,
+  storagePerPallet:  45,
+  monthlyMinimum:   [300, 350]
+};
+const QF_VOL_MID = { '0 \u2013 500':250, '500 \u2013 2,000':1250, '2,000 \u2013 10,000':6000, '10,000+':12000 };
+const QF_STEPS = 3;
+let qfCat = 'other';
+
+const qfMoney = n => '$' + Math.round(n).toLocaleString('en-US');
+
+function qfGo(n){
+  for (let i = 1; i <= QF_STEPS; i++){
+    document.getElementById('qf-' + i).classList.toggle('on', i === n);
+  }
+  document.getElementById('qf-rail').style.width = ((n - 1) / QF_STEPS * 100) + '%';
+  document.getElementById('qf-stepno').textContent = 'Question ' + n + ' of ' + QF_STEPS;
+  document.getElementById('qf-time').textContent = n === QF_STEPS ? 'Last one' : 'About ' + (20 - (n - 1) * 6) + ' seconds';
+  if (n === QF_STEPS) setTimeout(() => document.getElementById('qf-fn').focus(), 220);
+}
+
+document.querySelectorAll('#qf-1 .qf-choice').forEach(b => b.addEventListener('click', () => {
+  qfCat = b.dataset.cat;
+  document.getElementById('qf-sell').value = b.dataset.sell;
+  document.querySelectorAll('#qf-1 .qf-choice').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  qfGo(2);
+}));
+
+document.querySelectorAll('#qf-2 .qf-choice').forEach(b => b.addEventListener('click', () => {
+  document.getElementById('qf-vol').value = b.dataset.vol;
+  document.querySelectorAll('#qf-2 .qf-choice').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  qfGo(3);
+}));
+
+function qfEstimate(){
+  const orders = QF_VOL_MID[document.getElementById('qf-vol').value] || 250;
+  const base = QF_RATES.pickPack[qfCat] || QF_RATES.pickPack.other;
+  const extra = Math.max(0, QF_RATES.avgUnitsPerOrder - 1);
+  const lo = base[0] + QF_RATES.addlUnit[0] * extra;
+  const hi = base[1] + QF_RATES.addlUnit[1] * extra;
+  let monthLo = orders * lo, monthHi = orders * hi;
+  const belowMin = monthLo < QF_RATES.monthlyMinimum[0];
+  if (belowMin){
+    monthLo = QF_RATES.monthlyMinimum[0];
+    monthHi = Math.max(monthHi, QF_RATES.monthlyMinimum[1]);
+  }
+  return { orders, lo, hi, monthLo, monthHi, belowMin };
+}
+
+function qfFillSuccess(){
+  const e = qfEstimate();
+  const name = document.getElementById('qf-fn').value.trim() || 'there';
+  document.getElementById('qf-success-h').textContent = "Here's your ballpark, " + name + '.';
+  document.getElementById('qf-success-p').textContent = 'A firm quote lands in your inbox within 24 hours. No commitment.';
+  document.getElementById('qf-est-mount').innerHTML =
+    '<div class="qf-est">' +
+      '<div class="qf-est-cap">Estimated monthly fulfillment</div>' +
+      '<div class="qf-est-num">' + qfMoney(e.monthLo) + ' \u2013 ' + qfMoney(e.monthHi) + '</div>' +
+      '<div class="qf-est-per">per month' + (e.belowMin ? ' \u00b7 reflects our ' + qfMoney(QF_RATES.monthlyMinimum[0]) + ' monthly minimum' : '') + '</div>' +
+      '<div class="qf-brk">' +
+        '<div class="qf-brow"><span>Pick &amp; pack \u2014 ' + e.orders.toLocaleString('en-US') + ' orders @ $' + e.lo.toFixed(2) + '\u2013$' + e.hi.toFixed(2) + '</span><span>' + qfMoney(e.orders * e.lo) + '\u2013' + qfMoney(e.orders * e.hi) + '</span></div>' +
+        '<div class="qf-brow"><span>Pallet storage, if you need it</span><span>$' + QF_RATES.storagePerPallet + ' / pallet / mo</span></div>' +
+        '<div class="qf-brow"><span>Kitting, labeling, returns</span><span>Quoted on your volume</span></div>' +
+      '</div>' +
+    '</div>' +
+    '<p class="qf-fine">Estimate only \u2014 final pricing depends on unit weight, SKU count and packaging. Orders in by 2 PM CST ship the same day.</p>';
+  document.getElementById('qf-shown').value = qfMoney(e.monthLo) + '-' + qfMoney(e.monthHi) + '/mo';
+}
+
 async function submitForm(e) {
   e.preventDefault();
   const form = document.getElementById('quote-form');
@@ -501,16 +648,38 @@ async function submitForm(e) {
   btn.disabled = true;
   btn.textContent = 'Sending...';
   try {
+    qfFillSuccess();
     const data = new FormData(form);
     await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data).toString() });
     form.style.display = 'none';
     document.getElementById('form-success').style.display = 'block';
+    document.getElementById('form-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch(err) {
     btn.disabled = false;
-    btn.textContent = 'Get My Free Quote →';
+    btn.textContent = 'Get My Estimate →';
     alert('Something went wrong. Please try again or email us directly.');
   }
 }
 
 const sections = document.querySelectorAll('section[id]');
-window.addEventListen
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  sections.forEach(s => {
+    const offset = s.offsetTop - 100;
+    const height = s.offsetHeight;
+    const id = s.getAttribute('id');
+    const link = document.querySelector(`.nav-links a[href="#${id}"]`);
+    if(link) {
+      if(scrollY >= offset && scrollY < offset + height) {
+        link.style.color = 'var(--navy)';
+        link.style.fontWeight = '600';
+      } else {
+        link.style.color = '';
+        link.style.fontWeight = '';
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
