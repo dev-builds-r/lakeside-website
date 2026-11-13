@@ -13,9 +13,14 @@
 const OS_FIELDS = ['first-name', 'last-name', 'company-name', 'business-email',
   'phone', 'what-you-sell', 'monthly-orders', 'fulfillment-type'];
 
+// The name is typed by the visitor and goes into an email's HTML, so it is
+// escaped: nobody can send their own HTML or links from our address.
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 // 1. The auto-reply. Returns true when Resend accepted it.
 async function sendAutoReply(data) {
-  const firstName = data['first-name'] || 'there';
+  const firstName = escapeHtml(String(data['first-name'] || 'there').trim().slice(0, 80) || 'there');
   const email = data['business-email'];
 
   const res = await fetch('https://api.resend.com/emails', {
