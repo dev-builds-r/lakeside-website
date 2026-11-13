@@ -59,10 +59,12 @@ async function sendAutoReply(data) {
 }
 
 // 2. The OS hand-off. Returns 'sent' or 'skipped'; throws if the OS said no.
+// The token only ever goes over https: a mistyped http:// URL sends nothing.
 async function sendToOS(sub) {
   const url = process.env.OS_LEADS_URL;
   const token = process.env.LEADS_INTAKE_TOKEN;
   if (!url || !token || sub.form_name !== 'quote-request') return 'skipped';
+  if (!/^https:\/\//i.test(url)) throw new Error('OS_LEADS_URL is not https, nothing sent');
 
   const data = sub.data || {};
   const fields = {};
