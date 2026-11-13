@@ -11,7 +11,15 @@
 <meta property="og:title" content="Lakeside Fulfillment — Same-Day 3PL · Austin, TX">
 <meta property="og:description" content="Lakeside Fulfillment is a same-day 3PL in Austin, TX for DTC brands: supplements, research peptides, apparel and more. Orders in by 2 PM CST ship today, with 3-5 day U.S. delivery.">
 <meta property="og:url" content="https://lakesidefulfillment.com/">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Lakeside Fulfillment", "url": "https://lakesidefulfillment.com/", "telephone": "+1-737-343-2348", "description": "Lakeside Fulfillment is a same-day 3PL in Austin, TX for DTC brands: supplements, research peptides, apparel and more. Orders in by 2 PM CST ship today, with 3-5 day U.S. delivery.", "address": {"@type": "PostalAddress", "addressLocality": "Austin", "addressRegion": "TX", "addressCountry": "US"}, "areaServed": {"@type": "Country", "name": "United States"}, "knowsAbout": ["Third-party logistics", "E-commerce order fulfillment", "Peptide fulfillment", "Supplement fulfillment", "Kitting and assembly", "Amazon FBA prep"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "Lakeside Fulfillment", "url": "https://lakesidefulfillment.com/", "telephone": "+1-737-343-2348", "description": "Lakeside Fulfillment is a same-day 3PL in Austin, TX for DTC brands: supplements, research peptides, apparel and more. Orders in by 2 PM CST ship today, with 3-5 day U.S. delivery.", "address": {"@type": "PostalAddress", "streetAddress": "3100 Scott Dr, STE 201", "addressLocality": "Austin", "addressRegion": "TX", "postalCode": "78734", "addressCountry": "US"}, "areaServed": {"@type": "Country", "name": "United States"}, "knowsAbout": ["Third-party logistics", "E-commerce order fulfillment", "Peptide fulfillment", "Supplement fulfillment", "Kitting and assembly", "Amazon FBA prep"]}</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BYE6PHLJ33"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BYE6PHLJ33');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -595,6 +603,7 @@ async function submitForm(e) {
   try {
     const data = new FormData(form);
     await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data).toString() });
+    if (window.gtag) gtag('event', 'generate_lead', { form_name: 'quote-request', product_category: data.get('what-you-sell'), monthly_orders: data.get('monthly-orders') });
     form.style.display = 'none';
     document.getElementById('form-success').style.display = 'block';
     document.getElementById('form-success').scrollIntoView({ behavior: 'smooth', block: 'center' });

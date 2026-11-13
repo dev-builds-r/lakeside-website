@@ -1,0 +1,29 @@
+functionsDirectory = "/Users/nicksala/lakeside-website/netlify/functions"
+functionsDirectoryOrigin = "config-v1"
+plugins = []
+headers = []
+redirects = []
+
+[build]
+publish = "/Users/nicksala/lakeside-website"
+publishOrigin = "default"
+functions = "/Users/nicksala/lakeside-website/netlify/functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[functions]
+
+[functions."*"]
+node_bundler = "esbuild"
