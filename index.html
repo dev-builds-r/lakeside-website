@@ -169,14 +169,6 @@ section{padding:100px 5%;}
 .qf-back:hover{color:var(--blue);}
 .qf-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;}
 .qf-opt{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-left:6px;}
-.qf-est{background:var(--light);border:1px solid var(--border);border-radius:14px;padding:24px;margin:24px 0 0;text-align:left;}
-.qf-est-cap{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
-.qf-est-num{font-family:'Sora',sans-serif;font-size:clamp(28px,5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-.02em;line-height:1.1;}
-.qf-est-per{font-size:13px;color:var(--muted);margin-top:4px;}
-.qf-brk{border-top:1px solid var(--border);margin-top:18px;padding-top:14px;display:flex;flex-direction:column;gap:9px;}
-.qf-brow{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:var(--muted);text-align:left;}
-.qf-brow span:last-child{color:var(--navy);font-weight:600;white-space:nowrap;}
-.qf-fine{font-size:12px;color:var(--muted);line-height:1.6;margin-top:16px;text-align:left;}
 @media(max-width:600px){.qf-choices.two{grid-template-columns:1fr;}}
 footer{background:var(--navy);padding:64px 5% 32px;}
 .footer-inner{max-width:1200px;margin:0 auto;}
@@ -451,7 +443,6 @@ footer{background:var(--navy);padding:64px 5% 32px;}
           <!-- Hidden carriers: Netlify reads these field names, same as before -->
           <input type="hidden" name="what-you-sell" id="qf-sell">
           <input type="hidden" name="monthly-orders" id="qf-vol">
-          <input type="hidden" name="estimate-shown" id="qf-shown">
           <input type="hidden" name="last-name" value="">
           <input type="hidden" name="company-name" value="">
           <input type="hidden" name="fulfillment-type" value="">
@@ -487,22 +478,21 @@ footer{background:var(--navy);padding:64px 5% 32px;}
           <!-- 3 -->
           <div class="qf-step" id="qf-3">
             <h3 class="qf-q">Where do we send it?</h3>
-            <p class="qf-sub">Last screen. Your estimate shows up the second you hit the button.</p>
+            <p class="qf-sub">Last one. We put together your custom pricing and send it over within 24 hours.</p>
             <div class="form-grid">
               <div class="form-group"><label class="form-label" for="qf-fn">First Name</label><input type="text" id="qf-fn" name="first-name" class="form-input" placeholder="Jake" required></div>
               <div class="form-group"><label class="form-label" for="qf-ph">Phone <span class="qf-opt">optional</span></label><input type="tel" id="qf-ph" name="phone" class="form-input" placeholder="(512) 555-0123"></div>
               <div class="form-group full"><label class="form-label" for="qf-em">Business Email</label><input type="email" id="qf-em" name="business-email" class="form-input" placeholder="jake@yourbrand.com" required></div>
             </div>
-            <button type="submit" class="form-submit" id="submit-btn">Get My Estimate &#8594;</button>
+            <button type="submit" class="form-submit" id="submit-btn">Get My Free Quote &#8594;</button>
             <button type="button" class="qf-back" onclick="qfGo(2)">&#8592; Back</button>
             <p class="form-note">No spam. No commitment. A firm quote follows within 24 hours.</p>
           </div>
         </form>
         <div class="form-success" id="form-success">
           <div class="success-icon">&#9989;</div>
-          <h3 id="qf-success-h">We're On It!</h3>
-          <p id="qf-success-p">Our team will review your details and send a custom fulfillment quote within 24 hours. Check your email soon!</p>
-          <div id="qf-est-mount"></div>
+          <h3>We're On It!</h3>
+          <p>Our team will review your details and send a custom fulfillment quote within 24 hours. Check your email soon!</p>
         </div>
       </div>
     </div>
@@ -560,28 +550,8 @@ document.querySelectorAll('.reveal').forEach(el => {
   observer.observe(el);
 });
 
-/* --- Quote flow: 3 questions, ballpark on submit -------------------------
-   RATES ARE SEED VALUES derived from existing Lakeside client rate cards,
-   not from a published rate sheet. Confirm before this goes live. */
-const QF_RATES = {
-  pickPack: {
-    supplements: [3.00, 3.75],
-    beauty:      [2.25, 3.00],
-    food:        [2.50, 3.25],
-    apparel:     [1.50, 2.25],
-    pet:         [2.00, 2.75],
-    other:       [2.00, 3.00]
-  },
-  addlUnit:         [0.25, 0.50],
-  avgUnitsPerOrder:  2.2,
-  storagePerPallet:  45,
-  monthlyMinimum:   [300, 350]
-};
-const QF_VOL_MID = { '0 \u2013 500':250, '500 \u2013 2,000':1250, '2,000 \u2013 10,000':6000, '10,000+':12000 };
+/* --- Quote flow: three questions, then the contact details ------------- */
 const QF_STEPS = 3;
-let qfCat = 'other';
-
-const qfMoney = n => '$' + Math.round(n).toLocaleString('en-US');
 
 function qfGo(n){
   for (let i = 1; i <= QF_STEPS; i++){
@@ -594,7 +564,6 @@ function qfGo(n){
 }
 
 document.querySelectorAll('#qf-1 .qf-choice').forEach(b => b.addEventListener('click', () => {
-  qfCat = b.dataset.cat;
   document.getElementById('qf-sell').value = b.dataset.sell;
   document.querySelectorAll('#qf-1 .qf-choice').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
   qfGo(2);
@@ -606,41 +575,6 @@ document.querySelectorAll('#qf-2 .qf-choice').forEach(b => b.addEventListener('c
   qfGo(3);
 }));
 
-function qfEstimate(){
-  const orders = QF_VOL_MID[document.getElementById('qf-vol').value] || 250;
-  const base = QF_RATES.pickPack[qfCat] || QF_RATES.pickPack.other;
-  const extra = Math.max(0, QF_RATES.avgUnitsPerOrder - 1);
-  const lo = base[0] + QF_RATES.addlUnit[0] * extra;
-  const hi = base[1] + QF_RATES.addlUnit[1] * extra;
-  let monthLo = orders * lo, monthHi = orders * hi;
-  const belowMin = monthLo < QF_RATES.monthlyMinimum[0];
-  if (belowMin){
-    monthLo = QF_RATES.monthlyMinimum[0];
-    monthHi = Math.max(monthHi, QF_RATES.monthlyMinimum[1]);
-  }
-  return { orders, lo, hi, monthLo, monthHi, belowMin };
-}
-
-function qfFillSuccess(){
-  const e = qfEstimate();
-  const name = document.getElementById('qf-fn').value.trim() || 'there';
-  document.getElementById('qf-success-h').textContent = "Here's your ballpark, " + name + '.';
-  document.getElementById('qf-success-p').textContent = 'A firm quote lands in your inbox within 24 hours. No commitment.';
-  document.getElementById('qf-est-mount').innerHTML =
-    '<div class="qf-est">' +
-      '<div class="qf-est-cap">Estimated monthly fulfillment</div>' +
-      '<div class="qf-est-num">' + qfMoney(e.monthLo) + ' \u2013 ' + qfMoney(e.monthHi) + '</div>' +
-      '<div class="qf-est-per">per month' + (e.belowMin ? ' \u00b7 reflects our ' + qfMoney(QF_RATES.monthlyMinimum[0]) + ' monthly minimum' : '') + '</div>' +
-      '<div class="qf-brk">' +
-        '<div class="qf-brow"><span>Pick &amp; pack \u2014 ' + e.orders.toLocaleString('en-US') + ' orders @ $' + e.lo.toFixed(2) + '\u2013$' + e.hi.toFixed(2) + '</span><span>' + qfMoney(e.orders * e.lo) + '\u2013' + qfMoney(e.orders * e.hi) + '</span></div>' +
-        '<div class="qf-brow"><span>Pallet storage, if you need it</span><span>$' + QF_RATES.storagePerPallet + ' / pallet / mo</span></div>' +
-        '<div class="qf-brow"><span>Kitting, labeling, returns</span><span>Quoted on your volume</span></div>' +
-      '</div>' +
-    '</div>' +
-    '<p class="qf-fine">Estimate only \u2014 final pricing depends on unit weight, SKU count and packaging. Orders in by 2 PM CST ship the same day.</p>';
-  document.getElementById('qf-shown').value = qfMoney(e.monthLo) + '-' + qfMoney(e.monthHi) + '/mo';
-}
-
 async function submitForm(e) {
   e.preventDefault();
   const form = document.getElementById('quote-form');
@@ -648,7 +582,6 @@ async function submitForm(e) {
   btn.disabled = true;
   btn.textContent = 'Sending...';
   try {
-    qfFillSuccess();
     const data = new FormData(form);
     await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(data).toString() });
     form.style.display = 'none';
@@ -656,7 +589,7 @@ async function submitForm(e) {
     document.getElementById('form-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch(err) {
     btn.disabled = false;
-    btn.textContent = 'Get My Estimate →';
+    btn.textContent = 'Get My Free Quote →';
     alert('Something went wrong. Please try again or email us directly.');
   }
 }
